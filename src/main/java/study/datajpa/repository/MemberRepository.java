@@ -36,11 +36,14 @@ public interface MemberRepository extends JpaRepository<Member, Long>, MemberRep
 
     //여러 반환 타입
     List<Member> findListByUsername(String username); //컬렉션
+
     Member findMemberByUsername(String username); //단건
+
     Optional<Member> findOptionalByUsername(String username); //단건 Optional
 
     //페이징
     Page<Member> findPageByAge(int age, Pageable pageable);
+
     //슬라이스
     Slice<Member> findSliceByAge(int age, Pageable pageable);
 
@@ -69,4 +72,21 @@ public interface MemberRepository extends JpaRepository<Member, Long>, MemberRep
 
     @QueryHints(value = @QueryHint(name = "org.hibernate.readOnly", value = "true"))
     Member findReadOnlyByUsername(String username);
+
+    //Projection
+    List<UsernameOnly> findProjectionByUsername(String username);
+
+    //구체 클래스 사용
+    List<UsernameOnlyDto> findDtoByUsername(String username);
+
+    //NativeQuery
+    @Query(value = "select * from member where username = ?", nativeQuery = true)
+    Member findByNativeQuery(String username);
+
+    //NativeQuery + Projection
+    @Query(value = "select m.member_id as id, m.username, t.name as teamName " +
+            "from member m left join team t",
+            countQuery = "select count(*) from member",
+            nativeQuery = true)
+    Page<MemberProjection> findByNativeProjection(Pageable pageable);
 }
